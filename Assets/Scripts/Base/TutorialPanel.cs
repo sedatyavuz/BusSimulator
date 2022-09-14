@@ -1,15 +1,21 @@
+using Dreamteck.Splines;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TutorialPanel : MonoBehaviour
 {
-    void Update()
+    GameObject bus;
+    [SerializeField] GameObject upgradePanel;
+    private void Start()
     {
-        if(Input.GetMouseButtonDown(0))
-        {
-            GameManager.Instance.GameStart.Invoke();
-            gameObject.SetActive(false);
-        }
+        bus = GameObject.FindGameObjectWithTag("Player");
+    }
+    public void TutorialDeActive()
+    {
+        GameManager.Instance.GameStart.Invoke();
+        gameObject.SetActive(false);
+        bus.GetComponent<BusSc>().busForStartMethod();
+        upgradePanel.SetActive(false);
     }
 }

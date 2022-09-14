@@ -1,23 +1,68 @@
+using DG.Tweening;
+using Dreamteck.Splines;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SwerveHorizontal : MonoBehaviour
 {
-    private float Horizontal;
+    #region private
+    [HideInInspector] public bool _changeLine = true;
+    [Header("LineElements")]
+    [SerializeField] private float _lineChangeValueMax;
+    [SerializeField] private float _lineChangeValue;
+    [SerializeField] private float _lineChangeTime;
+    private SplineFollower _follower;
+    private Touch _touch;
+    private float _touchBeganPositionX;
+    private float _screenWidthCalculate;
+    #endregion
 
-    [SerializeField] private float Speed = 1;
-    [SerializeField] private float ClampValue = 3;
-
-    void FixedUpdate()
+    private void Start()
     {
-        if (Input.GetMouseButton(0))
+        DOTween.Init();
+        _follower = GetComponent<SplineFollower>();
+        _screenWidthCalculate = Screen.width / 8;
+    }
+
+    private void Update()
+    {
+        if (Input.touchCount == 1 && _changeLine)
         {
-            Horizontal += Speed * SimpleInput.GetAxis("Mouse X");
+            _touch = Input.GetTouch(0);
+            if (_touch.phase == TouchPhase.Began)
+            {
+                _touchBeganPositionX = _touch.position.x;
 
-            Horizontal = Mathf.Clamp(Horizontal, -ClampValue, ClampValue);
-
-            transform.localPosition = new Vector3(Horizontal, transform.localPosition.y, transform.localPosition.z);
+            }
+            else if ((_touch.phase == TouchPhase.Ended || _touch.phase == TouchPhase.Canceled)
+                && Mathf.Abs(_touchBeganPositionX - _touch.position.x) >= _screenWidthCalculate)
+            {
+                if (_touch.position.x - _touchBeganPositionX > 0)
+                {
+                    ChangeLine(+_lineChangeValue);
+                }
+                else
+                {
+                    ChangeLine(-_lineChangeValue);
+                }
+            }
         }
+    }
+
+    void ChangeLine(float changeValue)
+    {
+        _changeLine = false;
+        float nextXPosition;
+        float currentOffset = 0;
+        nextXPosition = Mathf.Clamp(_follower.motion.offset.x + changeValue, 0, _lineChangeValueMax);
+        DOTween.To(x => currentOffset = x, _follower.motion.offset.x, nextXPosition, _lineChangeTime)
+            .OnUpdate(() =>
+            {
+                _follower.motion.offset = new Vector2(currentOffset, _follower.motion.offset.y);
+            }).OnComplete(() =>
+            {
+                _changeLine = true;
+            });
     }
 }

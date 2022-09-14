@@ -5,26 +5,34 @@ using UnityEngine;
 public class CameraFollower : MonoBehaviour
 {
     [SerializeField] [Range(0, 1)] private float lerpSpeed = 0.125f;
-    [SerializeField] private Vector3 offset = new(0, -5, 5);
     [SerializeField] private bool CanLookAt = false;
-    Vector3 lerpPos;
-    Transform target;
+    Vector3 targetPosition;
+    [SerializeField] private Transform target;
+    public bool isCameraFollow;
 
     private void Start()
     {
-        target = GameObject.FindGameObjectWithTag("Player").transform;
+        transform.position = target.transform.position;
+        transform.rotation = target.transform.rotation;
     }
 
-    void LateUpdate() => CameraMove();
-
-    void CameraMove()
+    void LateUpdate()
     {
-        if (target == null) return;
+        if (isCameraFollow)
+        {
+            if (target != null)
+            {
+                targetPosition = new Vector3(target.position.x, target.position.y, target.position.z);
 
-        lerpPos = Vector3.Lerp(transform.localPosition, target.localPosition - offset, lerpSpeed);
-        transform.localPosition = lerpPos;
+                transform.position = targetPosition;
+                transform.rotation = target.rotation;
+                //transform.eulerAngles = target.eulerAngles;
+            }
+            if (CanLookAt)
+            {
+                transform.LookAt(target.localPosition);
+            }
+        }
 
-        if (CanLookAt)
-            transform.LookAt(target.localPosition);
     }
 }
