@@ -8,16 +8,14 @@ using TMPro;
 public class StationSc : MonoBehaviour
 {
     #region private
-    private List<Transform> _passengers;
+    private List<GameObject> _passengers;
     private SwerveHorizontal _busSwerve;
     private SplineFollower _busFollower;
     private BusSc _busSc;
+    [SerializeField] private GameObject[] outPassengers;
     [Header("PassengerElement")]
     [SerializeField] private TextMeshProUGUI _passengerCountText;
-    [SerializeField] private TextMeshProUGUI _passengerOutCountText;
-    [SerializeField] private int _passengerOutCount;
     [SerializeField] private float _passengersEndTime;
-    [SerializeField] private GameObject _passengerObject;
     [SerializeField] private Transform _outPassengerTarget;
 
     [Header("PassengersTargetAndSpawnDetermine")]
@@ -34,49 +32,43 @@ public class StationSc : MonoBehaviour
         _busSwerve = GameObject.FindGameObjectWithTag("Player").GetComponent<SwerveHorizontal>();
         _busSc = GameObject.FindGameObjectWithTag("Player").GetComponent<BusSc>();
         _busFollower = GameObject.FindGameObjectWithTag("Player").GetComponent<SplineFollower>();
-        _passengers = new List<Transform>();
+        _passengers = new List<GameObject>();
         Transform[] array = GetComponentsInChildren<Transform>();
 
         for (int i = 0; i < array.Length; i++)
         {
             if (array[i].transform.CompareTag("Passenger"))
             {
-                _passengers.Add(array[i]);
+                _passengers.Add(array[i].gameObject);
             }
         }
         _passengerCountText.text = _passengers.Count.ToString();
-        _passengerOutCountText.text = _passengerOutCount.ToString();
     }
 
 
     IEnumerator PassengersMove()
     {
-        float startBusSpeed = _busFollower.followSpeed;
-        _busFollower.followSpeed = 0;
+        _busFollower.follow = false;
         _busSwerve._changeLine = false;
         float currentTime = Time.time;
         VectorsDetermine();
-        float outPassengerCount;
-        if (_busSc.GetCurrentPassengerAmount() > _passengerOutCount)
+        int outPassengerCount = Random.Range(0, _busSc.GetCurrentPassengerAmount()+1);
+        foreach (GameObject g in _passengers)
         {
-            outPassengerCount = _passengerOutCount;
-        }
-        else
-        {
-            outPassengerCount = _busSc.GetCurrentPassengerAmount();
-        }
-        foreach (Transform t in _passengers)
-        {
-            t.DOMove(toBoardPassengersTarget, _passengersEndTime);
+            g.transform.DOMove(toBoardPassengersTarget, _passengersEndTime);
+            g.GetComponent<Animator>().SetBool("Walk", true);
         }
         for (int i = 0; i < outPassengerCount; i++)
         {
-            GameObject g = Instantiate(_passengerObject, outPassengersSpawnPosition, Quaternion.identity);
-            g.transform.DOMove(_outPassengerTarget.position, _passengersEndTime);
+            int x = Random.Range(0, outPassengers.Length);
+            GameObject g = Instantiate(outPassengers[x], new Vector3(outPassengersSpawnPosition.x, 0, outPassengersSpawnPosition.z), _outPassengerTarget.rotation);
+            g.transform.DOMove(new Vector3(_outPassengerTarget.position.x, 0, _outPassengerTarget.position.z), _passengersEndTime);
+            g.GetComponent<Animator>().SetBool("Walk", true);
+            _busSc.currentPassengerUpdate(false);
             yield return new WaitForSeconds(.15f);
         }
         yield return new WaitForSeconds(_passengersEndTime - (Time.time - currentTime));
-        _busFollower.followSpeed = startBusSpeed;
+        _busFollower.follow = true;
         _busSwerve._changeLine = true;
     }
     void VectorsDetermine()

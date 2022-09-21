@@ -42,7 +42,6 @@ public class GameManager : Singleton<GameManager>
         set
         {
             playerMoney = value;
-            OnMoneyChange.Invoke();
         }
     }
 
@@ -133,6 +132,7 @@ public class GameManager : Singleton<GameManager>
             setFuelPrice(fuelPricePlus);
             currentFuelText.text = getFuel().ToString()+"/Sn";
             fuelUpgradePriceText.text = getFuelPrice().ToString()+" $";
+            OnMoneyChange.Invoke();
         }
     }
     public void capacityUpgrade()
@@ -144,6 +144,7 @@ public class GameManager : Singleton<GameManager>
             setCapacityPrice(capacityPricePlus);
             currentCapacityText.text = getCapacity().ToString();
             capacityUpgradePriceText.text = getCapacityPrice().ToString() + " $";
+            OnMoneyChange.Invoke();
         }
     }
 
@@ -183,5 +184,10 @@ public class GameManager : Singleton<GameManager>
     void setCapacity(int value)
     {
         PlayerPrefs.SetInt("totalCapacity", getCapacity() + value);
+    }
+
+    public void updateMoney()
+    {
+        OnMoneyChange.Invoke();
     }
 }

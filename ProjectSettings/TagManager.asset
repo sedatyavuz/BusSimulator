@@ -8,6 +8,7 @@ TagManager:
   - Passenger
   - Station
   - Car
+  - Ending
   layers:
   - Default
   - TransparentFX

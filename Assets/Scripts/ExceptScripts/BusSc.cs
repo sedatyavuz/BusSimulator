@@ -12,7 +12,7 @@ public class BusSc : MonoBehaviour
     private SkinnedMeshRenderer _skinnedMeshRenderer;
     private GameManager _gameManager;
     private SplineFollower _follower;
-
+    private CameraFollower cameraSc;
     [Header("PassengerElement")]
     [SerializeField] GameObject capacityPanel;
     private int _passengerCapacity;
@@ -29,19 +29,20 @@ public class BusSc : MonoBehaviour
     [SerializeField] GameObject fuelPanel;
     [SerializeField] Image fuelFilledImage;
     [SerializeField] int fuelFillAmountSmooth;
+    [SerializeField] float currentFuelReduceAmount;
     private int totalFuel;
-    private int currentFuel;
+    private float currentFuel;
     [Header("CarElements")]
     SplineFollower[] carFollowers;
     #endregion
 
     void Start()
     {
-
         _skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         _follower = GetComponent<SplineFollower>();
         carFollowers = GameObject.Find("CarParent").GetComponentsInChildren<SplineFollower>();
+        cameraSc = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraFollower>();
         setCurrentPassengerAmountText();
         DOTween.Init();
     }
@@ -59,14 +60,14 @@ public class BusSc : MonoBehaviour
         {
             other.GetComponent<StationSc>().targetAndSpawn(_rightFrontDoor, _leftFrontDoor, _rightBackDoor, _leftBackDoor);
         }
-        if (other.transform.CompareTag("Passenger"))
-        {
-            Destroy(other.gameObject);
-            currentPassengerUpdate(true);
-        }
         if (other.transform.CompareTag("Car"))
         {
             gameFailed();
+        }
+        if (other.transform.CompareTag("Ending"))
+        {
+            capacityPanel.SetActive(false);
+            other.GetComponent<EndingSc>().PassengersEndingMove(_rightBackDoor, _leftBackDoor);
         }
     }
 
@@ -87,6 +88,7 @@ public class BusSc : MonoBehaviour
             {
                 _currentPassengerAmount--;
                 _gameManager.PlayerMoney += passengerGainCoinAmount;
+                _gameManager.updateMoney();
 
             }
             float x = 0;
@@ -118,10 +120,10 @@ public class BusSc : MonoBehaviour
 
     IEnumerator FuelUpdateMethod()
     {
-        if (_follower.followSpeed > 0)
+        if (_follower.follow)
         {
-            currentFuel--;
-            if (currentFuel <= -1)
+            currentFuel -= currentFuelReduceAmount;
+            if (currentFuel <= currentFuelReduceAmount*-1)
             {
                 gameFailed();
             }
@@ -131,14 +133,15 @@ public class BusSc : MonoBehaviour
                 for (int i = 0; i < fuelFillAmountSmooth; i++)
                 {
                     fuelFilledImage.fillAmount = Mathf.Lerp(curentFillAmount, (float)currentFuel / totalFuel, (float)i / fuelFillAmountSmooth);
-                    yield return new WaitForSeconds((float)1 / fuelFillAmountSmooth);
+                    fuelFilledImage.color = Color.Lerp(Color.red, Color.green, fuelFilledImage.fillAmount);
+                    yield return new WaitForSeconds((float)currentFuelReduceAmount / fuelFillAmountSmooth);
                 }
                 StartCoroutine(FuelUpdateMethod());
             }
         }
         else
         {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(currentFuelReduceAmount);
             StartCoroutine(FuelUpdateMethod());
         }
     }
@@ -156,6 +159,7 @@ public class BusSc : MonoBehaviour
             s.follow = true;
         }
         _follower.follow = true;
+        cameraSc.isCameraFollow = true;
         StartCoroutine(FuelUpdateMethod());
     }
 
