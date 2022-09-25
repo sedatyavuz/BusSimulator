@@ -6,8 +6,11 @@ using UnityEngine;
 
 public class SwerveHorizontal : MonoBehaviour
 {
+    
     #region private
-    [HideInInspector] public bool _changeLine = true;
+    private BusSc busSc;
+    [HideInInspector] public bool _changeLine = false;
+    [HideInInspector] public float nextXPosition;
     [Header("LineElements")]
     [SerializeField] private float _lineChangeValueMax;
     [SerializeField] private float _lineChangeValue;
@@ -16,6 +19,7 @@ public class SwerveHorizontal : MonoBehaviour
     private Touch _touch;
     private float _touchBeganPositionX;
     private float _screenWidthCalculate;
+    
     #endregion
 
     private void Start()
@@ -23,6 +27,7 @@ public class SwerveHorizontal : MonoBehaviour
         DOTween.Init();
         _follower = GetComponent<SplineFollower>();
         _screenWidthCalculate = Screen.width / 8;
+        busSc = GetComponent<BusSc>();
     }
 
     private void Update()
@@ -53,16 +58,22 @@ public class SwerveHorizontal : MonoBehaviour
     void ChangeLine(float changeValue)
     {
         _changeLine = false;
-        float nextXPosition;
         float currentOffset = 0;
         nextXPosition = Mathf.Clamp(_follower.motion.offset.x + changeValue, 0, _lineChangeValueMax);
         DOTween.To(x => currentOffset = x, _follower.motion.offset.x, nextXPosition, _lineChangeTime)
             .OnUpdate(() =>
             {
-                _follower.motion.offset = new Vector2(currentOffset, _follower.motion.offset.y);
+                if (busSc.acceleration == false)
+                {
+                    _follower.motion.offset = new Vector2(currentOffset, _follower.motion.offset.y);
+                }
             }).OnComplete(() =>
             {
-                _changeLine = true;
+                if (busSc.acceleration == false)
+                {
+                    _changeLine = true;
+                }
+                   
             });
     }
 }

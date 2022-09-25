@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 854330922250004959}
   - component: {fileID: 854330922250004953}
   - component: {fileID: 854330922250004952}
-  - component: {fileID: 1599116748171081707}
   m_Layer: 0
   m_Name: Car-1-W-F-R
   m_TagString: Untagged
@@ -84,20 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &1599116748171081707
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 854330922250004958}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -6091004510160885076, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
 --- !u!1 &854330922385420651
 GameObject:
   m_ObjectHideFlags: 0
@@ -109,7 +94,6 @@ GameObject:
   - component: {fileID: 854330922385420644}
   - component: {fileID: 854330922385420646}
   - component: {fileID: 854330922385420645}
-  - component: {fileID: 692484735076536087}
   m_Layer: 0
   m_Name: Car-1-W-F-L
   m_TagString: Untagged
@@ -182,20 +166,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &692484735076536087
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 854330922385420651}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 2758498678150539190, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
 --- !u!1 &854330922933070044
 GameObject:
   m_ObjectHideFlags: 0
@@ -207,7 +177,6 @@ GameObject:
   - component: {fileID: 854330922933070045}
   - component: {fileID: 854330922933070047}
   - component: {fileID: 854330922933070046}
-  - component: {fileID: 4014061523444159499}
   m_Layer: 0
   m_Name: Car-1-w-Back
   m_TagString: Untagged
@@ -280,20 +249,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &4014061523444159499
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 854330922933070044}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 229532026131485991, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
 --- !u!1 &854330923944853095
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,9 +260,9 @@ GameObject:
   - component: {fileID: 854330923944853090}
   - component: {fileID: 854330923944853089}
   - component: {fileID: 854330923944853088}
-  - component: {fileID: 4854351256031952527}
   - component: {fileID: 4854351256031952496}
   - component: {fileID: 4854351256031952497}
+  - component: {fileID: 7260110576177552005}
   m_Layer: 0
   m_Name: Car-1-v6
   m_TagString: Car
@@ -383,20 +338,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &4854351256031952527
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 854330923944853095}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 1090036468726902683, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
 --- !u!114 &4854351256031952496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2931,7 +2872,7 @@ MonoBehaviour:
   wrapMode: 0
   followMode: 0
   autoStartPosition: 0
-  _follow: 0
+  _follow: 1
   preserveUniformSpeedWithOffset: 0
   _followSpeed: 1
   _followDuration: 1
@@ -2959,3 +2900,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineChangeValue: 2.1
   line: 1
+--- !u!65 &7260110576177552005
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854330923944853095}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.8050379, y: 1.3779713, z: 4.520697}
+  m_Center: {x: 0.0000002980232, y: 0.7986823, z: 0.0000005960464}

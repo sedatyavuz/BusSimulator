@@ -13,12 +13,14 @@ public class BusSc : MonoBehaviour
     private GameManager _gameManager;
     private SplineFollower _follower;
     private CameraFollower cameraSc;
+    private SwerveHorizontal swerveHorizontal;
+    private Collider busCollider;
     [Header("PassengerElement")]
     [SerializeField] GameObject capacityPanel;
     private int _passengerCapacity;
     [SerializeField] private TextMeshProUGUI passengerCapacityText;
     [SerializeField] private TextMeshProUGUI _currentPassengerAmountText;
-    private int _currentPassengerAmount=0;
+    private int _currentPassengerAmount = 0;
     [SerializeField] private int passengerGainCoinAmount;
     [Header("DoorTransforms")]
     [SerializeField] private Transform _rightFrontDoor;
@@ -34,40 +36,68 @@ public class BusSc : MonoBehaviour
     private float currentFuel;
     [Header("CarElements")]
     SplineFollower[] carFollowers;
+    [Header("CarCrush")]
+    Shake cameraShake;
+    [SerializeField] private float xDistance;
+    [SerializeField] private float yDistance;
+    [SerializeField] private float zRotate;
+    [SerializeField] private float jumpTime;
+    [SerializeField] private float accelerationLineTime;
+    [SerializeField] private float accelerationSpeedTime;
+    [HideInInspector] public bool acceleration = false;
+    [Header("CarCrushPassengerElements")]
+    [SerializeField] private Vector3 passengerSpawnOffset;
+    [SerializeField] private int passengerReduce;
+    [SerializeField] private GameObject[] passengers;
+    [SerializeField] private Vector3 forceVector;
+    [SerializeField] private float force;
+    Sequence accelerationSequence;
+    float startFollowSpeed;
+
     #endregion
 
     void Start()
     {
+        swerveHorizontal = GetComponent<SwerveHorizontal>();
         _skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         _follower = GetComponent<SplineFollower>();
         carFollowers = GameObject.Find("CarParent").GetComponentsInChildren<SplineFollower>();
         cameraSc = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraFollower>();
+        busCollider = GetComponent<Collider>();
+        cameraShake = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Shake>();
+        accelerationSequence = DOTween.Sequence();
         setCurrentPassengerAmountText();
         DOTween.Init();
+        StartCoroutine(CarsFolloweSetFalse());
+        startFollowSpeed = _follower.followSpeed;
     }
 
     
     void Update()
     {
 
-        
     }
-    
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.CompareTag("Station"))
-        {
-            other.GetComponent<StationSc>().targetAndSpawn(_rightFrontDoor, _leftFrontDoor, _rightBackDoor, _leftBackDoor);
-        }
+        
         if (other.transform.CompareTag("Car"))
         {
-            gameFailed();
+            other.GetComponent<SplineFollower>().follow = false;
+            carCrush(other.transform);
+            BusAcceleration();
         }
         if (other.transform.CompareTag("Ending"))
         {
             capacityPanel.SetActive(false);
             other.GetComponent<EndingSc>().PassengersEndingMove(_rightBackDoor, _leftBackDoor);
+        }
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.transform.CompareTag("Station") && swerveHorizontal._changeLine)
+        {
+            other.GetComponent<StationSc>().targetAndSpawn(_rightFrontDoor, _leftFrontDoor, _rightBackDoor, _leftBackDoor);
         }
     }
 
@@ -185,4 +215,155 @@ public class BusSc : MonoBehaviour
             _passengerCapacity = value;
         }
     }
+
+    IEnumerator CarsFolloweSetFalse()
+    {
+        yield return new WaitForSeconds(Time.deltaTime);
+        foreach (SplineFollower s in carFollowers)
+        {
+            s.follow = false;
+        }
+    }
+
+
+    #region CarCrush
+    void carCrush(Transform carTransform)
+    {
+        cameraShake.StartShake();
+        if (Vector3.Distance(new Vector3(transform.position.x, 0, 0), new Vector3(carTransform.position.x, 0, 0)) <= .2f)
+        {
+            passengerThrowLine(false, true);
+            if (carTransform.GetComponent<SplineFollower>().motion.offset.x >= 0)
+            {
+                carRotate(carTransform, true);
+                carJump(carTransform, false);
+            }
+            else
+            {
+                carRotate(carTransform, false);
+                carJump(carTransform, true);
+            }
+        }
+        else if (transform.position.x > carTransform.position.x)
+        {
+            passengerThrowLine(false,false);
+
+            carRotate(carTransform, false);
+
+            carJump(carTransform, true);
+        }
+        else if (transform.position.x < carTransform.position.x)
+        {
+            passengerThrowLine(true,false);
+
+            carRotate(carTransform, true);
+
+            carJump(carTransform, false);
+        }
+    }
+
+    void carRotate(Transform carTransform,bool negative)
+    {
+        float zRotateCopy = zRotate;
+        float currentZ = 0;
+        if (carTransform.eulerAngles.y == 180 || negative)
+        {
+            zRotateCopy = Mathf.Abs(zRotate) * -1;
+        }
+        DOTween.To(x => currentZ = x, 0, zRotateCopy, jumpTime)
+            .OnUpdate(() =>
+            {
+                carTransform.eulerAngles = new Vector3(carTransform.eulerAngles.x, carTransform.eulerAngles.y, currentZ);
+            });
+    }
+    void carJump(Transform carTransform, bool negative)
+    {
+        float xDistanceCopy = xDistance;
+        if (negative)
+        {
+            xDistanceCopy = -xDistance;
+        }
+        carTransform.DOJump(new Vector3(carTransform.position.x + xDistanceCopy, -2, carTransform.position.z), yDistance, 1, jumpTime)
+                   .OnComplete(() =>
+                   {
+                       Destroy(carTransform.gameObject);
+                   });
+    }
+
+    void BusAcceleration()
+    {
+        accelerationSequence.Kill();
+        float currentSpeed = 0;
+        accelerationSequence.Append(DOTween.To(x => currentSpeed = x, startFollowSpeed/3, startFollowSpeed, accelerationSpeedTime)
+            .OnUpdate(() =>
+            {
+                _follower.followSpeed = currentSpeed;
+            }));
+        
+        if (swerveHorizontal._changeLine == false)
+        {
+            acceleration = true;
+            float currentX = 0;
+            DOTween.To(x => currentX = x, _follower.motion.offset.x, swerveHorizontal.nextXPosition, accelerationLineTime)
+            .OnUpdate(() =>
+            {
+                _follower.motion.offset = new Vector2(currentX, _follower.motion.offset.y);
+
+            }).OnComplete(() =>
+            {
+                acceleration = false;
+                swerveHorizontal._changeLine = true;
+            });
+        }
+    }
+
+    void passengerThrowLine(bool throwRight,bool directCrush)
+    {
+        int passengerReduceCopy = 0;
+        if (_currentPassengerAmount >= passengerReduce)
+        {
+            passengerReduceCopy = _currentPassengerAmount / passengerReduce;
+        }
+        else if(_currentPassengerAmount != 0)
+        {
+            passengerReduceCopy = 1;
+        }
+        Debug.Log(passengerReduceCopy);
+        _currentPassengerAmount -= passengerReduceCopy;
+        setCurrentPassengerAmountText();
+        for (int i = 0; i < passengerReduceCopy; i++)
+        {
+            if (directCrush)
+            {
+                if (Random.Range(0, 2) == 0)
+                {
+                    throwRight = !throwRight;
+                }  
+            }
+            Vector3 forceVectorCopy;
+            if (throwRight == false)
+            {
+                forceVectorCopy = new Vector3(forceVector.x * -1, forceVector.y, forceVector.z);
+            }
+            else
+            {
+                forceVectorCopy = forceVector;
+            }
+            Vector3 quternionVector = new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360));
+            GameObject g = Instantiate(passengers[Random.Range(0, passengers.Length)], transform.position + passengerSpawnOffset, Quaternion.Euler(quternionVector));
+            Rigidbody[] gRigis = g.GetComponentsInChildren<Rigidbody>();
+            Collider[] gCols = g.GetComponentsInChildren<Collider>();
+            foreach (Collider c in gCols)
+            {
+                c.isTrigger = true;
+            }
+            foreach (Rigidbody r in gRigis)
+            {
+                r.mass = Random.Range(r.mass / 2, r.mass * 2);
+                r.AddForce(forceVectorCopy * force);
+            }
+            Destroy(g, 4);
+        }
+    }
+    #endregion
 }

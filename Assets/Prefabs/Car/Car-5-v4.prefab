@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1255498924184912118}
   - component: {fileID: 1255498924184912120}
   - component: {fileID: 1255498924184912121}
-  - component: {fileID: 579749291092701650}
   m_Layer: 0
   m_Name: Car-5-W-B
   m_TagString: Untagged
@@ -84,20 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &579749291092701650
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255498924184912119}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -812761582679728998, guid: d616ffa15aba9004990d2fe3bf967b55, type: 3}
 --- !u!1 &1255498924272974348
 GameObject:
   m_ObjectHideFlags: 0
@@ -109,7 +94,6 @@ GameObject:
   - component: {fileID: 1255498924272974351}
   - component: {fileID: 1255498924272974353}
   - component: {fileID: 1255498924272974350}
-  - component: {fileID: 7241974074334470976}
   m_Layer: 0
   m_Name: Car-5-W-F-L
   m_TagString: Untagged
@@ -182,20 +166,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &7241974074334470976
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255498924272974348}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 6605684355135343918, guid: d616ffa15aba9004990d2fe3bf967b55, type: 3}
 --- !u!1 &1255498924439895923
 GameObject:
   m_ObjectHideFlags: 0
@@ -207,9 +177,9 @@ GameObject:
   - component: {fileID: 1255498924439895924}
   - component: {fileID: 1255498924439895925}
   - component: {fileID: 1255498924439895922}
-  - component: {fileID: 6510096015788505337}
   - component: {fileID: 6510096015788505338}
   - component: {fileID: 6510096015788505339}
+  - component: {fileID: -5764208100161534413}
   m_Layer: 0
   m_Name: Car-5-v4
   m_TagString: Car
@@ -285,20 +255,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &6510096015788505337
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255498924439895923}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 3988080087758987323, guid: d616ffa15aba9004990d2fe3bf967b55, type: 3}
 --- !u!114 &6510096015788505338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2833,7 +2789,7 @@ MonoBehaviour:
   wrapMode: 0
   followMode: 0
   autoStartPosition: 0
-  _follow: 0
+  _follow: 1
   preserveUniformSpeedWithOffset: 0
   _followSpeed: 1
   _followDuration: 1
@@ -2861,6 +2817,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineChangeValue: 2.1
   line: 1
+--- !u!65 &-5764208100161534413
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255498924439895923}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.6870548, y: 1.2699773, z: 3.361545}
+  m_Center: {x: 0, y: 0.74930036, z: 0}
 --- !u!1 &1255498924958428833
 GameObject:
   m_ObjectHideFlags: 0
@@ -2872,7 +2841,6 @@ GameObject:
   - component: {fileID: 1255498924958428832}
   - component: {fileID: 1255498924958428834}
   - component: {fileID: 1255498924958428835}
-  - component: {fileID: 4104824932671820350}
   m_Layer: 0
   m_Name: Car-5-W-F-R
   m_TagString: Untagged
@@ -2945,17 +2913,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &4104824932671820350
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255498924958428833}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -230410158689480019, guid: d616ffa15aba9004990d2fe3bf967b55, type: 3}

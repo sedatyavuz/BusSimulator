@@ -16,6 +16,7 @@ public class TutorialPanel : MonoBehaviour
         GameManager.Instance.GameStart.Invoke();
         gameObject.SetActive(false);
         bus.GetComponent<BusSc>().busForStartMethod();
+        bus.GetComponent<SwerveHorizontal>()._changeLine = true;
         upgradePanel.SetActive(false);
     }
 }

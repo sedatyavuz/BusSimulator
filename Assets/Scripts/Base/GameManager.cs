@@ -85,7 +85,7 @@ public class GameManager : Singleton<GameManager>
 
         currentCapacityText.text = getCapacity().ToString();
         capacityUpgradePriceText.text = getCapacityPrice().ToString() + " $";
-        capacityPlusText.text = capacityPlus.ToString()+" Capacity";
+        capacityPlusText.text = capacityPlus.ToString();
     }
 
     public void LevelState(bool value)

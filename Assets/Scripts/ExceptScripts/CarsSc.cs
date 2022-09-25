@@ -7,8 +7,8 @@ public class CarsSc : MonoBehaviour
 {
     [SerializeField] private float lineChangeValue;
     private SplineFollower follower;
-    private enum Line { rightLine, rightOutLine, leftLine ,leftOutLine}
-    [SerializeField] private Line line;
+    public enum Line { rightLine, rightOutLine, leftLine ,leftOutLine}
+    [SerializeField] public Line line;
 
     private void Start()
     {

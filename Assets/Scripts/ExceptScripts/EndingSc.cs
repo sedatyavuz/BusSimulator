@@ -10,7 +10,7 @@ public class EndingSc : MonoBehaviour
     private BusSc busSc;
     private SwerveHorizontal busSwerve;
     private SplineFollower busFollower;
-    private GameObject camera;
+    private GameObject mainCamera;
     [SerializeField] private Transform endingOrigin;
     [SerializeField] private float endingOriginMoveTime;
     [SerializeField] private Transform passengerRightOutOrigin;
@@ -23,7 +23,7 @@ public class EndingSc : MonoBehaviour
         busSc = player.GetComponent<BusSc>();
         busFollower = player.GetComponent<SplineFollower>();
         busSwerve = player.GetComponent<SwerveHorizontal>();
-        camera = GameObject.FindGameObjectWithTag("MainCamera");
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
         DOTween.Init();
     }
 
@@ -34,8 +34,8 @@ public class EndingSc : MonoBehaviour
         player.transform.DOMove(new Vector3(endingOrigin.position.x, 0, endingOrigin.position.z), endingOriginMoveTime)
             .OnComplete(()=> 
             {
-                camera.GetComponent<CameraFollower>().isCameraFollow = false;
-                camera.transform.SetParent(endingOrigin);
+                mainCamera.GetComponent<CameraFollower>().isCameraFollow = false;
+                mainCamera.transform.SetParent(endingOrigin);
                 endingOrigin.GetComponent<Animator>().SetBool("Rotate", true);
                 int currentPassengerAmount = busSc.GetCurrentPassengerAmount();
                 StartCoroutine(method(currentPassengerAmount, rigthBackDoor, leftBackDoor));

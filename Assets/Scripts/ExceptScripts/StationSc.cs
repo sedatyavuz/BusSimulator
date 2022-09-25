@@ -8,6 +8,7 @@ using TMPro;
 public class StationSc : MonoBehaviour
 {
     #region private
+    private Collider frontCollider;
     private List<GameObject> _passengers;
     private SwerveHorizontal _busSwerve;
     private SplineFollower _busFollower;
@@ -28,6 +29,7 @@ public class StationSc : MonoBehaviour
     #endregion
     void Start()
     {
+        frontCollider = GetComponent<Collider>();
         DOTween.Init();
         _busSwerve = GameObject.FindGameObjectWithTag("Player").GetComponent<SwerveHorizontal>();
         _busSc = GameObject.FindGameObjectWithTag("Player").GetComponent<BusSc>();
@@ -48,6 +50,7 @@ public class StationSc : MonoBehaviour
 
     IEnumerator PassengersMove()
     {
+        frontCollider.enabled = false;
         _busFollower.follow = false;
         _busSwerve._changeLine = false;
         float currentTime = Time.time;
@@ -62,6 +65,7 @@ public class StationSc : MonoBehaviour
         {
             int x = Random.Range(0, outPassengers.Length);
             GameObject g = Instantiate(outPassengers[x], new Vector3(outPassengersSpawnPosition.x, 0, outPassengersSpawnPosition.z), _outPassengerTarget.rotation);
+            g.GetComponent<Collider>().enabled = false;
             g.transform.DOMove(new Vector3(_outPassengerTarget.position.x, 0, _outPassengerTarget.position.z), _passengersEndTime);
             g.GetComponent<Animator>().SetBool("Walk", true);
             _busSc.currentPassengerUpdate(false);

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4193496608785557326}
   - component: {fileID: 4193496608785557324}
   - component: {fileID: 4193496608785557325}
-  - component: {fileID: 2264691974024286915}
   m_Layer: 0
   m_Name: Car-1-w-Back
   m_TagString: Untagged
@@ -84,20 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2264691974024286915
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4193496608785557327}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 229532026131485991, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
 --- !u!1 &4193496608790978846
 GameObject:
   m_ObjectHideFlags: 0
@@ -109,9 +94,9 @@ GameObject:
   - component: {fileID: 4193496608790978843}
   - component: {fileID: 4193496608790978844}
   - component: {fileID: 4193496608790978845}
-  - component: {fileID: 7216883267114184367}
   - component: {fileID: 7216883267114184364}
   - component: {fileID: 7216883267114184365}
+  - component: {fileID: -4196432374954826992}
   m_Layer: 0
   m_Name: Car-1-v3
   m_TagString: Car
@@ -187,20 +172,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &7216883267114184367
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4193496608790978846}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 1090036468726902683, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
 --- !u!114 &7216883267114184364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2735,7 +2706,7 @@ MonoBehaviour:
   wrapMode: 0
   followMode: 0
   autoStartPosition: 0
-  _follow: 0
+  _follow: 1
   preserveUniformSpeedWithOffset: 0
   _followSpeed: 1
   _followDuration: 1
@@ -2763,6 +2734,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineChangeValue: 2.1
   line: 1
+--- !u!65 &-4196432374954826992
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4193496608790978846}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.8050379, y: 1.3779713, z: 4.520697}
+  m_Center: {x: 0.0000002980232, y: 0.7986823, z: 0.0000005960464}
 --- !u!1 &4193496609254752333
 GameObject:
   m_ObjectHideFlags: 0
@@ -2774,7 +2758,6 @@ GameObject:
   - component: {fileID: 4193496609254752332}
   - component: {fileID: 4193496609254752330}
   - component: {fileID: 4193496609254752331}
-  - component: {fileID: 4816226043410012294}
   m_Layer: 0
   m_Name: Car-1-W-F-R
   m_TagString: Untagged
@@ -2847,20 +2830,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &4816226043410012294
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4193496609254752333}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -6091004510160885076, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
 --- !u!1 &4193496609393381596
 GameObject:
   m_ObjectHideFlags: 0
@@ -2872,7 +2841,6 @@ GameObject:
   - component: {fileID: 4193496609393381595}
   - component: {fileID: 4193496609393381593}
   - component: {fileID: 4193496609393381594}
-  - component: {fileID: 2182630544491739806}
   m_Layer: 0
   m_Name: Car-1-W-F-L
   m_TagString: Untagged
@@ -2945,17 +2913,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2182630544491739806
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4193496609393381596}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 2758498678150539190, guid: 41d252f3c4e09b049b1a50ae7dc7e39c, type: 3}
