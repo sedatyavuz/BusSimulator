@@ -11,15 +11,7 @@ public class PassengerDestroyer : MonoBehaviour
         if (other.transform.CompareTag("Passenger"))
         {
             Destroy(other.gameObject);
-            busSc.currentPassengerUpdate(true);
-        }
-    }
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.transform.CompareTag("Passenger"))
-        {
-            Destroy(collision.gameObject);
-            busSc.currentPassengerUpdate(true);
+            busSc.currentPassengerUpdate(1);
         }
     }
 }

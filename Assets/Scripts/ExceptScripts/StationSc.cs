@@ -55,7 +55,7 @@ public class StationSc : MonoBehaviour
         _busSwerve._changeLine = false;
         float currentTime = Time.time;
         VectorsDetermine();
-        int outPassengerCount = Random.Range(0, _busSc.GetCurrentPassengerAmount()+1);
+        int outPassengerCount = 0;//Random.Range(0, _busSc.GetCurrentPassengerAmount()+1);
         foreach (GameObject g in _passengers)
         {
             g.transform.DOMove(toBoardPassengersTarget, _passengersEndTime);
@@ -68,12 +68,15 @@ public class StationSc : MonoBehaviour
             g.GetComponent<Collider>().enabled = false;
             g.transform.DOMove(new Vector3(_outPassengerTarget.position.x, 0, _outPassengerTarget.position.z), _passengersEndTime);
             g.GetComponent<Animator>().SetBool("Walk", true);
-            _busSc.currentPassengerUpdate(false);
+            _busSc.currentPassengerUpdate(-1);
             yield return new WaitForSeconds(.15f);
         }
         yield return new WaitForSeconds(_passengersEndTime - (Time.time - currentTime));
-        _busFollower.follow = true;
-        _busSwerve._changeLine = true;
+        if (_busSc.isEnding == false)
+        {
+            _busFollower.follow = true;
+            _busSwerve._changeLine = true;
+        }
     }
     void VectorsDetermine()
     {

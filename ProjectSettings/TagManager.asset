@@ -9,6 +9,8 @@ TagManager:
   - Station
   - Car
   - Ending
+  - Cube
+  - RagdollPassenger
   layers:
   - Default
   - TransparentFX

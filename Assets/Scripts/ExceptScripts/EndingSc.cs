@@ -6,63 +6,70 @@ using DG.Tweening;
 
 public class EndingSc : MonoBehaviour
 {
-    private GameObject player;
-    private BusSc busSc;
-    private SwerveHorizontal busSwerve;
-    private SplineFollower busFollower;
-    private GameObject mainCamera;
-    [SerializeField] private Transform endingOrigin;
-    [SerializeField] private float endingOriginMoveTime;
-    [SerializeField] private Transform passengerRightOutOrigin;
-    [SerializeField] private Transform passengerLeftOutOrigin;
-    [SerializeField] private float passengerWalkEndTime;
+    [SerializeField] GameObject endingCanvas;
     [SerializeField] private GameObject[] passengers;
+    [SerializeField] private Vector3 spawnOffset;
+    [SerializeField] private Vector3 forceVector;
+    [SerializeField] private Vector3 forceVectorOfsset;
+    [SerializeField] private float force;
+    private GameObject bus;
+    [Header("CameraElents")]
+    [SerializeField] private Transform cameraTarget;
+    [SerializeField] private float cameraAnimtionEndTime;
+    private GameObject mainCamera;
+    [Header("Passenger")]
+    [SerializeField] GameObject stationParent;
+    public static int totalPassengerAmount;
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        busSc = player.GetComponent<BusSc>();
-        busFollower = player.GetComponent<SplineFollower>();
-        busSwerve = player.GetComponent<SwerveHorizontal>();
-        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
         DOTween.Init();
-    }
+        bus = GameObject.FindGameObjectWithTag("Player");
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 
-    public void PassengersEndingMove(Transform rigthBackDoor,Transform leftBackDoor)
-    {
-        busFollower.follow = false;
-        busSwerve._changeLine = false;
-        player.transform.DOMove(new Vector3(endingOrigin.position.x, 0, endingOrigin.position.z), endingOriginMoveTime)
-            .OnComplete(()=> 
-            {
-                mainCamera.GetComponent<CameraFollower>().isCameraFollow = false;
-                mainCamera.transform.SetParent(endingOrigin);
-                endingOrigin.GetComponent<Animator>().SetBool("Rotate", true);
-                int currentPassengerAmount = busSc.GetCurrentPassengerAmount();
-                StartCoroutine(method(currentPassengerAmount, rigthBackDoor, leftBackDoor));
-            });
-    }
-
-    IEnumerator method(int passengerAmount,Transform rigthBackDoor, Transform leftBackDoor)
-    {
-        for (int i = 0; i < passengerAmount; i++)
+        foreach (Transform t in stationParent.GetComponentsInChildren<Transform>())
         {
-            if (Random.Range(0, 2) == 0)
+            if (t.CompareTag("Passenger"))
             {
-                int x = Random.Range(0, passengers.Length);
-                GameObject g = Instantiate(passengers[x], new Vector3(rigthBackDoor.position.x, 0, rigthBackDoor.position.z), passengerRightOutOrigin.rotation);
-                g.transform.DOMove(new Vector3(passengerRightOutOrigin.position.x, 0, passengerRightOutOrigin.position.z), passengerWalkEndTime);
-                g.GetComponent<Animator>().SetBool("Walk", true);
-                busSc.currentPassengerUpdate(false);
+                totalPassengerAmount++;
             }
-            else
+        }
+    }
+    public void endingPassengersThrow(int passengersAmount, Vector3 spawn)
+    {
+        endingCanvas.SetActive(true);
+        bus.GetComponent<SplineFollower>().follow = false;
+        mainCamera.GetComponent<CameraFollower>().isCameraFollow = false;
+        mainCamera.transform.DOMove(cameraTarget.position, cameraAnimtionEndTime);
+        mainCamera.transform.DORotate(cameraTarget.eulerAngles, cameraAnimtionEndTime);
+        for (int i = 0; i < passengersAmount; i++)
+        {
+            Vector3 angle = new Vector3(Random.Range(0,361), Random.Range(0, 361), Random.Range(0, 361));
+            GameObject g = Instantiate(passengers[Random.Range(0, passengers.Length)], spawn + spawnOffset, Quaternion.Euler(angle));
+            Rigidbody[] gRigis = g.GetComponentsInChildren<Rigidbody>();
+            Collider[] gCols = g.GetComponentsInChildren<Collider>();
+            StartCoroutine(setColsTrigger(gCols));
+            foreach (Rigidbody r in gRigis)
             {
-                int x = Random.Range(0, passengers.Length);
-                GameObject g = Instantiate(passengers[x], new Vector3(leftBackDoor.position.x, 0, leftBackDoor.position.z), passengerLeftOutOrigin.rotation);
-                g.transform.DOMove(new Vector3(passengerLeftOutOrigin.position.x, 0, passengerLeftOutOrigin.position.z), passengerWalkEndTime);
-                g.GetComponent<Animator>().SetBool("Walk", true);
-                busSc.currentPassengerUpdate(false);
+                r.mass = Random.Range(r.mass, r.mass);
+                r.AddForce(new Vector3(Random.Range(forceVector.x-forceVectorOfsset.x, forceVector.x + forceVectorOfsset.x)
+                    , Random.Range(forceVector.y - forceVectorOfsset.y, forceVector.y + forceVectorOfsset.y)
+                    , Random.Range(forceVector.z - forceVectorOfsset.z, forceVector.z + forceVectorOfsset.z)) * force);
             }
-            yield return new WaitForSeconds(.15f);
+        }
+    }
+    IEnumerator setColsTrigger(Collider[] gCols)
+    {
+        foreach(Collider c in gCols)
+        {
+            c.isTrigger = true;
+        }
+        yield return new WaitForSeconds(1);
+        foreach (Collider c in gCols)
+        {
+            if (!c.CompareTag("RagdollPassenger"))
+            {
+                c.isTrigger = false;
+            }
         }
     }
 }

@@ -8,6 +8,8 @@ using Dreamteck.Splines;
 
 public class BusSc : MonoBehaviour
 {
+    public int deleteAmount;
+    [HideInInspector] public bool isEnding = false;
     #region private
     private SkinnedMeshRenderer _skinnedMeshRenderer;
     private GameManager _gameManager;
@@ -37,8 +39,8 @@ public class BusSc : MonoBehaviour
     [Header("CarElements")]
     SplineFollower[] carFollowers;
     [Header("CarCrush")]
-    Shake cameraShake;
     [SerializeField] private float xDistance;
+    Shake cameraShake;
     [SerializeField] private float yDistance;
     [SerializeField] private float zRotate;
     [SerializeField] private float jumpTime;
@@ -58,6 +60,7 @@ public class BusSc : MonoBehaviour
 
     void Start()
     {
+        _currentPassengerAmount = deleteAmount;
         swerveHorizontal = GetComponent<SwerveHorizontal>();
         _skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -89,8 +92,9 @@ public class BusSc : MonoBehaviour
         }
         if (other.transform.CompareTag("Ending"))
         {
+            fuelPanel.SetActive(false);
             capacityPanel.SetActive(false);
-            other.GetComponent<EndingSc>().PassengersEndingMove(_rightBackDoor, _leftBackDoor);
+            other.GetComponent<EndingSc>().endingPassengersThrow(_currentPassengerAmount, transform.position);
         }
     }
     private void OnTriggerStay(Collider other)
@@ -102,24 +106,16 @@ public class BusSc : MonoBehaviour
     }
 
     private object _lock = new object();
-    public void currentPassengerUpdate(bool plus)
+    bool capacityCheck = false;
+    public void currentPassengerUpdate(int amount)
     {
         lock (_lock)
         {
-            if (plus)
+            _currentPassengerAmount += amount;
+            if (_currentPassengerAmount > _passengerCapacity && capacityCheck == false)
             {
-                _currentPassengerAmount++;
-                if (_currentPassengerAmount > _passengerCapacity)
-                {
-                    gameFailed();
-                }
-            }
-            else
-            {
-                _currentPassengerAmount--;
-                _gameManager.PlayerMoney += passengerGainCoinAmount;
-                _gameManager.updateMoney();
-
+                capacityCheck = true;
+                gameFailed();
             }
             float x = 0;
 
@@ -140,12 +136,14 @@ public class BusSc : MonoBehaviour
 
     void gameFailed()
     {
+        isEnding = true;
         _follower.follow = false;
         foreach (SplineFollower s in carFollowers)
         {
             s.follow = false;
         }
         GameManager.Instance.LevelState(false);
+        swerveHorizontal._changeLine = false;
     }
 
     IEnumerator FuelUpdateMethod()
@@ -328,9 +326,11 @@ public class BusSc : MonoBehaviour
         {
             passengerReduceCopy = 1;
         }
-        Debug.Log(passengerReduceCopy);
-        _currentPassengerAmount -= passengerReduceCopy;
-        setCurrentPassengerAmountText();
+        currentPassengerUpdate(-passengerReduceCopy);
+        if (_currentPassengerAmount <= 0)
+        {
+            gameFailed();
+        }
         for (int i = 0; i < passengerReduceCopy; i++)
         {
             if (directCrush)
