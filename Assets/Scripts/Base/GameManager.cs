@@ -42,6 +42,7 @@ public class GameManager : Singleton<GameManager>
         set
         {
             playerMoney = value;
+            OnMoneyChange.Invoke();
         }
     }
 

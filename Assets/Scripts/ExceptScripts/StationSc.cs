@@ -31,9 +31,6 @@ public class StationSc : MonoBehaviour
     {
         frontCollider = GetComponent<Collider>();
         DOTween.Init();
-        _busSwerve = GameObject.FindGameObjectWithTag("Player").GetComponent<SwerveHorizontal>();
-        _busSc = GameObject.FindGameObjectWithTag("Player").GetComponent<BusSc>();
-        _busFollower = GameObject.FindGameObjectWithTag("Player").GetComponent<SplineFollower>();
         _passengers = new List<GameObject>();
         Transform[] array = GetComponentsInChildren<Transform>();
 
@@ -50,6 +47,13 @@ public class StationSc : MonoBehaviour
 
     IEnumerator PassengersMove()
     {
+        #region reference
+        GameObject busObject = GameObject.FindGameObjectWithTag("Player"); 
+        _busSwerve = busObject.GetComponent<SwerveHorizontal>();
+        _busSc = busObject.GetComponent<BusSc>();
+        _busFollower = busObject.GetComponent<SplineFollower>();
+        #endregion
+
         frontCollider.enabled = false;
         _busFollower.follow = false;
         _busSwerve._changeLine = false;

@@ -6,8 +6,11 @@ using UnityEngine;
 public class TutorialPanel : MonoBehaviour
 {
     GameObject bus;
-    [SerializeField] GameObject upgradePanel;
     private void Start()
+    {
+        GameManager.Instance.GameStart.AddListener(busReference);
+    }
+    void busReference()
     {
         bus = GameObject.FindGameObjectWithTag("Player");
     }
@@ -17,6 +20,5 @@ public class TutorialPanel : MonoBehaviour
         gameObject.SetActive(false);
         bus.GetComponent<BusSc>().busForStartMethod();
         bus.GetComponent<SwerveHorizontal>()._changeLine = true;
-        upgradePanel.SetActive(false);
     }
 }

@@ -26,7 +26,7 @@ public class SwerveHorizontal : MonoBehaviour
     {
         DOTween.Init();
         _follower = GetComponent<SplineFollower>();
-        _screenWidthCalculate = Screen.width / 8;
+        _screenWidthCalculate = Screen.width / 10;
         busSc = GetComponent<BusSc>();
     }
 
@@ -43,11 +43,12 @@ public class SwerveHorizontal : MonoBehaviour
             else if ((_touch.phase == TouchPhase.Ended || _touch.phase == TouchPhase.Canceled)
                 && Mathf.Abs(_touchBeganPositionX - _touch.position.x) >= _screenWidthCalculate)
             {
-                if (_touch.position.x - _touchBeganPositionX > 0)
+                
+                if (_touch.position.x - _touchBeganPositionX > 0 && !Mathf.Approximately(_follower.motion.offset.x, _lineChangeValueMax))
                 {
                     ChangeLine(+_lineChangeValue);
                 }
-                else
+                else if(_touch.position.x - _touchBeganPositionX < 0 && !Mathf.Approximately(_follower.motion.offset.x, 0))
                 {
                     ChangeLine(-_lineChangeValue);
                 }
@@ -57,23 +58,23 @@ public class SwerveHorizontal : MonoBehaviour
 
     void ChangeLine(float changeValue)
     {
-        _changeLine = false;
         float currentOffset = 0;
         nextXPosition = Mathf.Clamp(_follower.motion.offset.x + changeValue, 0, _lineChangeValueMax);
+        _changeLine = false;
         DOTween.To(x => currentOffset = x, _follower.motion.offset.x, nextXPosition, _lineChangeTime)
-            .OnUpdate(() =>
-            {
-                if (busSc.acceleration == false)
-                {
-                    _follower.motion.offset = new Vector2(currentOffset, _follower.motion.offset.y);
-                }
-            }).OnComplete(() =>
-            {
-                if (busSc.acceleration == false)
-                {
-                    _changeLine = true;
-                }
-                   
-            });
+       .OnUpdate(() =>
+       {
+           if (busSc.acceleration == false)
+           {
+               _follower.motion.offset = new Vector2(currentOffset, _follower.motion.offset.y);
+           }
+       }).OnComplete(() =>
+       {
+           if (busSc.acceleration == false)
+           {
+               _changeLine = true;
+           }
+
+       });
     }
 }

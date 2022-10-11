@@ -8,12 +8,12 @@ using Dreamteck.Splines;
 
 public class BusSc : MonoBehaviour
 {
-    public int deleteAmount;
     [HideInInspector] public bool isEnding = false;
     #region private
     private SkinnedMeshRenderer _skinnedMeshRenderer;
     private GameManager _gameManager;
     private SplineFollower _follower;
+    [SerializeField] private GameObject mainCamera;
     private CameraFollower cameraSc;
     private SwerveHorizontal swerveHorizontal;
     private Collider busCollider;
@@ -23,7 +23,6 @@ public class BusSc : MonoBehaviour
     [SerializeField] private TextMeshProUGUI passengerCapacityText;
     [SerializeField] private TextMeshProUGUI _currentPassengerAmountText;
     private int _currentPassengerAmount = 0;
-    [SerializeField] private int passengerGainCoinAmount;
     [Header("DoorTransforms")]
     [SerializeField] private Transform _rightFrontDoor;
     [SerializeField] private Transform _leftFrontDoor;
@@ -34,12 +33,15 @@ public class BusSc : MonoBehaviour
     [SerializeField] Image fuelFilledImage;
     [SerializeField] int fuelFillAmountSmooth;
     [SerializeField] float currentFuelReduceAmount;
+    [SerializeField] float currentFuelReduceTime;
     private int totalFuel;
     private float currentFuel;
     [Header("CarElements")]
+    [SerializeField] GameObject carParent;
     SplineFollower[] carFollowers;
     [Header("CarCrush")]
-    [SerializeField] private float xDistance;
+    [SerializeField] private Transform rightCarJumpTransform;
+    [SerializeField] private Transform leftCarJumpTransform;
     Shake cameraShake;
     [SerializeField] private float yDistance;
     [SerializeField] private float zRotate;
@@ -51,32 +53,31 @@ public class BusSc : MonoBehaviour
     [SerializeField] private Vector3 passengerSpawnOffset;
     [SerializeField] private int passengerReduce;
     [SerializeField] private GameObject[] passengers;
-    [SerializeField] private Vector3 forceVector;
+    [SerializeField] private Transform rightForceObject;
+    [SerializeField] private Transform leftForceObject;
+    [SerializeField] private float forceVectorYOffset;
     [SerializeField] private float force;
     Sequence accelerationSequence;
     float startFollowSpeed;
 
     #endregion
-
-    void Start()
+    private void OnEnable()
     {
-        _currentPassengerAmount = deleteAmount;
+        //_currentPassengerAmount = 7;
         swerveHorizontal = GetComponent<SwerveHorizontal>();
         _skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         _follower = GetComponent<SplineFollower>();
-        carFollowers = GameObject.Find("CarParent").GetComponentsInChildren<SplineFollower>();
-        cameraSc = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraFollower>();
+        carFollowers = carParent.GetComponentsInChildren<SplineFollower>();
         busCollider = GetComponent<Collider>();
-        cameraShake = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Shake>();
+        cameraSc = mainCamera.GetComponent<CameraFollower>();
+        cameraShake = mainCamera.GetComponent<Shake>();
         accelerationSequence = DOTween.Sequence();
         setCurrentPassengerAmountText();
         DOTween.Init();
         StartCoroutine(CarsFolloweSetFalse());
         startFollowSpeed = _follower.followSpeed;
     }
-
-    
     void Update()
     {
 
@@ -133,6 +134,11 @@ public class BusSc : MonoBehaviour
     {
         return _currentPassengerAmount;
     }
+    public void SetCurrentPassengerAmount(int amount)
+    {
+        _currentPassengerAmount = amount;
+        setCurrentPassengerAmountText();
+    }
 
     void gameFailed()
     {
@@ -162,20 +168,21 @@ public class BusSc : MonoBehaviour
                 {
                     fuelFilledImage.fillAmount = Mathf.Lerp(curentFillAmount, (float)currentFuel / totalFuel, (float)i / fuelFillAmountSmooth);
                     fuelFilledImage.color = Color.Lerp(Color.red, Color.green, fuelFilledImage.fillAmount);
-                    yield return new WaitForSeconds((float)currentFuelReduceAmount / fuelFillAmountSmooth);
+                    yield return new WaitForSeconds((float)currentFuelReduceTime / fuelFillAmountSmooth);
                 }
                 StartCoroutine(FuelUpdateMethod());
             }
         }
         else
         {
-            yield return new WaitForSeconds(currentFuelReduceAmount);
+            yield return new WaitForSeconds(currentFuelReduceTime);
             StartCoroutine(FuelUpdateMethod());
         }
     }
 
     public void busForStartMethod()
     {
+        swerveHorizontal.enabled = true;
         _passengerCapacity = PlayerPrefs.GetInt("totalCapacity");
         totalFuel = PlayerPrefs.GetInt("totalFuel");
         capacityPanel.SetActive(true);
@@ -228,43 +235,46 @@ public class BusSc : MonoBehaviour
     void carCrush(Transform carTransform)
     {
         cameraShake.StartShake();
-        if (Vector3.Distance(new Vector3(transform.position.x, 0, 0), new Vector3(carTransform.position.x, 0, 0)) <= .2f)
+        SplineFollower carFollower = carTransform.GetComponent<SplineFollower>();
+        float carDistance = carFollower.motion.offset.x + carFollower.offsetModifier.keys[0].offset.x;
+        float busDistance = _follower.motion.offset.x + _follower.offsetModifier.keys[0].offset.x;
+        if(Vector2.Distance(new Vector2(carDistance, 0),new Vector2(busDistance, 0)) <= .2f)
         {
             passengerThrowLine(false, true);
             if (carTransform.GetComponent<SplineFollower>().motion.offset.x >= 0)
             {
-                carRotate(carTransform, true);
+                carRotate(carTransform, true, carFollower);
                 carJump(carTransform, false);
             }
             else
             {
-                carRotate(carTransform, false);
+                carRotate(carTransform, false, carFollower);
                 carJump(carTransform, true);
             }
         }
-        else if (transform.position.x > carTransform.position.x)
+        else if (busDistance > carDistance)
         {
             passengerThrowLine(false,false);
 
-            carRotate(carTransform, false);
+            carRotate(carTransform, false, carFollower);
 
             carJump(carTransform, true);
         }
-        else if (transform.position.x < carTransform.position.x)
+        else if (busDistance < carDistance)
         {
             passengerThrowLine(true,false);
 
-            carRotate(carTransform, true);
+            carRotate(carTransform, true, carFollower);
 
             carJump(carTransform, false);
         }
     }
 
-    void carRotate(Transform carTransform,bool negative)
+    void carRotate(Transform carTransform,bool negative , SplineFollower carFollowerCopy)
     {
         float zRotateCopy = zRotate;
         float currentZ = 0;
-        if (carTransform.eulerAngles.y == 180 || negative)
+        if (carFollowerCopy.direction == Spline.Direction.Backward || negative)
         {
             zRotateCopy = Mathf.Abs(zRotate) * -1;
         }
@@ -276,12 +286,12 @@ public class BusSc : MonoBehaviour
     }
     void carJump(Transform carTransform, bool negative)
     {
-        float xDistanceCopy = xDistance;
+        Vector3 xDistanceCopy = rightCarJumpTransform.position;
         if (negative)
         {
-            xDistanceCopy = -xDistance;
+            xDistanceCopy = leftCarJumpTransform.position;
         }
-        carTransform.DOJump(new Vector3(carTransform.position.x + xDistanceCopy, -2, carTransform.position.z), yDistance, 1, jumpTime)
+        carTransform.DOJump(new Vector3(xDistanceCopy.x, -2, xDistanceCopy.z), yDistance, 1, jumpTime)
                    .OnComplete(() =>
                    {
                        Destroy(carTransform.gameObject);
@@ -340,17 +350,17 @@ public class BusSc : MonoBehaviour
                     throwRight = !throwRight;
                 }  
             }
-            Vector3 forceVectorCopy;
+            Vector3 forceVectorCopy = Vector3.zero;
             if (throwRight == false)
             {
-                forceVectorCopy = new Vector3(forceVector.x * -1, forceVector.y, forceVector.z);
+                forceVectorCopy = new Vector3(leftForceObject.position.x, leftForceObject.position.y, leftForceObject.position.z);
             }
             else
             {
-                forceVectorCopy = forceVector;
+                forceVectorCopy = new Vector3(rightForceObject.position.x, rightForceObject.position.y, rightForceObject.position.z);
             }
             Vector3 quternionVector = new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360));
-            GameObject g = Instantiate(passengers[Random.Range(0, passengers.Length)], transform.position + passengerSpawnOffset, Quaternion.Euler(quternionVector));
+            GameObject g = Instantiate(passengers[Random.Range(0, passengers.Length)], transform.position, Quaternion.Euler(quternionVector));
             Rigidbody[] gRigis = g.GetComponentsInChildren<Rigidbody>();
             Collider[] gCols = g.GetComponentsInChildren<Collider>();
             foreach (Collider c in gCols)
@@ -359,8 +369,8 @@ public class BusSc : MonoBehaviour
             }
             foreach (Rigidbody r in gRigis)
             {
-                r.mass = Random.Range(r.mass / 2, r.mass * 2);
-                r.AddForce(forceVectorCopy * force);
+                r.mass = Random.Range(r.mass/2, r.mass*2);
+                r.AddForce((forceVectorCopy - g.transform.position) * force);
             }
             Destroy(g, 4);
         }
