@@ -30,7 +30,8 @@ public class EndingCanvas : MonoBehaviour
 
     void nextLevelCheck()
     {
-        if((percentRogdall * 100)>= nextLevelForPercent)
+        gameObject.SetActive(false);
+        if ((percentRogdall * 100)>= nextLevelForPercent)
         {
             GameManager.Instance.LevelState(true);
         }

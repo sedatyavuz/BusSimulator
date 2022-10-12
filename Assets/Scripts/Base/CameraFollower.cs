@@ -12,6 +12,8 @@ public class CameraFollower : MonoBehaviour
 
     private void Start()
     {
+        transform.position = target.position;
+        transform.rotation = target.rotation;
     }
 
     void LateUpdate()

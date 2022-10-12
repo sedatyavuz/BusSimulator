@@ -142,6 +142,7 @@ public class BusSc : MonoBehaviour
 
     void gameFailed()
     {
+        fuelPanel.SetActive(false);
         isEnding = true;
         _follower.follow = false;
         foreach (SplineFollower s in carFollowers)
