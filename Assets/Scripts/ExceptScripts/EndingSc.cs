@@ -68,7 +68,6 @@ public class EndingSc : MonoBehaviour
             forceVectorCopy = new Vector3(Random.Range(forceVectorCopy.x - forceVectorOfsset.x, forceVectorCopy.x + forceVectorOfsset.x)
                 , Random.Range(forceVectorOfsset.y - (forceVectorOfsset.y/3), forceVectorOfsset.y)
                 , Random.Range(forceVectorCopy.z - forceVectorOfsset.z, forceVectorCopy.z + forceVectorOfsset.z));
-            Debug.Log(forceVectorCopy);
             foreach (Rigidbody r in gRigis)
             {
                 //r.mass = Random.Range(r.mass/2, r.mass*2);

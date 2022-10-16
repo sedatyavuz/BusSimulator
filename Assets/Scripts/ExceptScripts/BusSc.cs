@@ -59,11 +59,19 @@ public class BusSc : MonoBehaviour
     [SerializeField] private float force;
     Sequence accelerationSequence;
     float startFollowSpeed;
-
+    [Header("BusExploidElemets")]
+    [SerializeField] private GameObject busElements;
+    [SerializeField] private GameObject busExploidObject;
+    [SerializeField] private float busExploidAnimEndTime =1.5f;
+    [SerializeField] private float passengerThrowForExploidTime;
+    [SerializeField] private Transform cointainer;
+    [SerializeField] private float expForce;
+    [SerializeField] private float expPosRandomize;
+    [SerializeField] private float expMassRandomize;
     #endregion
     private void OnEnable()
     {
-        //_currentPassengerAmount = 7;
+        //_currentPassengerAmount = 50;
         swerveHorizontal = GetComponent<SwerveHorizontal>();
         _skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -93,6 +101,7 @@ public class BusSc : MonoBehaviour
         }
         if (other.transform.CompareTag("Ending"))
         {
+            busCollider.enabled = false;
             fuelPanel.SetActive(false);
             capacityPanel.SetActive(false);
             other.GetComponent<EndingSc>().endingPassengersThrow(_currentPassengerAmount, transform.position);
@@ -115,8 +124,7 @@ public class BusSc : MonoBehaviour
             _currentPassengerAmount += amount;
             if (_currentPassengerAmount > _passengerCapacity && capacityCheck == false)
             {
-                capacityCheck = true;
-                gameFailed();
+                busExploid();
             }
             float x = 0;
 
@@ -126,6 +134,8 @@ public class BusSc : MonoBehaviour
             setCurrentPassengerAmountText();
         }
     }
+
+   
     public void setCurrentPassengerAmountText()
     {
         _currentPassengerAmountText.text = _currentPassengerAmount.ToString();
@@ -230,6 +240,70 @@ public class BusSc : MonoBehaviour
             s.follow = false;
         }
     }
+    #region BusExploid
+
+    void busExploid()
+    {
+        Invoke("passengerThorowExploidMethod", passengerThrowForExploidTime);
+        Invoke("LevelStateFalse", busExploidAnimEndTime);
+        _skinnedMeshRenderer.enabled = false;
+        busElements.SetActive(false);
+        capacityPanel.SetActive(false);
+        busExploidObject.SetActive(true);
+        capacityCheck = true;
+        fuelPanel.SetActive(false);
+        isEnding = true;
+        _follower.follow = false;
+        swerveHorizontal._changeLine = false;
+        foreach (SplineFollower s in carFollowers)
+        {
+            s.follow = false;
+        }
+    }
+    void passengerThorowExploidMethod()
+    {
+        for(int i = 0; i < _currentPassengerAmount; i++)
+        {
+            passengerThorowExploid();
+        }
+    }
+    void passengerThorowExploid()
+    {
+        Vector3 forceVectorCopy = Vector3.zero;
+        if (Random.Range(0,2)==0)
+        {
+            forceVectorCopy = new Vector3(Random.Range(leftForceObject.position.x, leftForceObject.position.x* expPosRandomize)
+                , Random.Range(leftForceObject.position.y, leftForceObject.position.y* expPosRandomize)
+                , Random.Range(leftForceObject.position.z/ expPosRandomize, leftForceObject.position.z* expPosRandomize));
+        }
+        else
+        {
+            forceVectorCopy = new Vector3(Random.Range(rightForceObject.position.x, rightForceObject.position.x * expPosRandomize)
+                , Random.Range(rightForceObject.position.y, rightForceObject.position.y * expPosRandomize)
+                , Random.Range(rightForceObject.position.z/ expPosRandomize, rightForceObject.position.z * expPosRandomize));
+        }
+        Vector3 quternionVector = new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360));
+        GameObject g = Instantiate(passengers[Random.Range(0, passengers.Length)], transform.position, Quaternion.Euler(quternionVector));
+        g.transform.SetParent(cointainer);
+        Rigidbody[] gRigis = g.GetComponentsInChildren<Rigidbody>();
+        Collider[] gCols = g.GetComponentsInChildren<Collider>();
+        foreach (Collider c in gCols)
+        {
+            c.isTrigger = true;
+        }
+        foreach (Rigidbody r in gRigis)
+        {
+            r.mass = Random.Range(r.mass / expMassRandomize, r.mass * expMassRandomize);
+            r.AddForce((forceVectorCopy - g.transform.position) * expForce);
+        }
+        Destroy(g, 9);
+    }
+    void LevelStateFalse()
+    {
+        GameManager.Instance.LevelState(false);
+    }
+
+    #endregion
 
 
     #region CarCrush
@@ -373,7 +447,7 @@ public class BusSc : MonoBehaviour
                 r.mass = Random.Range(r.mass/2, r.mass*2);
                 r.AddForce((forceVectorCopy - g.transform.position) * force);
             }
-            Destroy(g, 4);
+            Destroy(g, 2);
         }
     }
     #endregion
