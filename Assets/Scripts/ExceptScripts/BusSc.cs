@@ -71,7 +71,7 @@ public class BusSc : MonoBehaviour
     #endregion
     private void OnEnable()
     {
-        //_currentPassengerAmount = 50;
+        //_currentPassengerAmount = 10;
         swerveHorizontal = GetComponent<SwerveHorizontal>();
         _skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -162,35 +162,32 @@ public class BusSc : MonoBehaviour
         GameManager.Instance.LevelState(false);
         swerveHorizontal._changeLine = false;
     }
-
-    IEnumerator FuelUpdateMethod()
+    #region Fuel
+    IEnumerator FuelReduce()
     {
         if (_follower.follow)
         {
             currentFuel -= currentFuelReduceAmount;
-            if (currentFuel <= currentFuelReduceAmount*-1)
-            {
-                gameFailed();
-            }
-            else
-            {
-                float curentFillAmount = fuelFilledImage.fillAmount;
-                for (int i = 0; i < fuelFillAmountSmooth; i++)
-                {
-                    fuelFilledImage.fillAmount = Mathf.Lerp(curentFillAmount, (float)currentFuel / totalFuel, (float)i / fuelFillAmountSmooth);
-                    fuelFilledImage.color = Color.Lerp(Color.red, Color.green, fuelFilledImage.fillAmount);
-                    yield return new WaitForSeconds((float)currentFuelReduceTime / fuelFillAmountSmooth);
-                }
-                StartCoroutine(FuelUpdateMethod());
-            }
+            FuelCheck();
+            FuelUpdateMethod();
         }
-        else
+        yield return new WaitForSeconds(currentFuelReduceTime);
+        StartCoroutine(FuelReduce());
+    }
+    void FuelCheck()
+    {
+        if (currentFuel <= 0)
         {
-            yield return new WaitForSeconds(currentFuelReduceTime);
-            StartCoroutine(FuelUpdateMethod());
+            gameFailed();
         }
     }
+    void FuelUpdateMethod()
+    {
+        fuelFilledImage.fillAmount = Mathf.Lerp(fuelFilledImage.fillAmount,(float) currentFuel/totalFuel,1);
+        fuelFilledImage.color = Color.Lerp(Color.red, Color.green, fuelFilledImage.fillAmount);
+    }
 
+    #endregion
     public void busForStartMethod()
     {
         swerveHorizontal.enabled = true;
@@ -200,13 +197,13 @@ public class BusSc : MonoBehaviour
         fuelPanel.SetActive(true);
         passengerCapacityText.text = _passengerCapacity.ToString();
         currentFuel = totalFuel;
+        StartCoroutine(FuelReduce());
         foreach (SplineFollower s in carFollowers)
         {
             s.follow = true;
         }
         _follower.follow = true;
         cameraSc.isCameraFollow = true;
-        StartCoroutine(FuelUpdateMethod());
     }
 
     public int TotalFuel
@@ -272,7 +269,7 @@ public class BusSc : MonoBehaviour
         Vector3 forceVectorCopy = Vector3.zero;
         if (Random.Range(0,2)==0)
         {
-            forceVectorCopy = new Vector3(Random.Range(leftForceObject.position.x, leftForceObject.position.x* expPosRandomize)
+            forceVectorCopy = new Vector3(Random.Range(leftForceObject.position.x/ expPosRandomize, leftForceObject.position.x* expPosRandomize)
                 , Random.Range(leftForceObject.position.y, leftForceObject.position.y* expPosRandomize)
                 , Random.Range(leftForceObject.position.z/ expPosRandomize, leftForceObject.position.z* expPosRandomize));
         }
@@ -309,11 +306,12 @@ public class BusSc : MonoBehaviour
     #region CarCrush
     void carCrush(Transform carTransform)
     {
-        cameraShake.StartShake();
         SplineFollower carFollower = carTransform.GetComponent<SplineFollower>();
         float carDistance = carFollower.motion.offset.x + carFollower.offsetModifier.keys[0].offset.x;
         float busDistance = _follower.motion.offset.x + _follower.offsetModifier.keys[0].offset.x;
-        if(Vector2.Distance(new Vector2(carDistance, 0),new Vector2(busDistance, 0)) <= .2f)
+        //Debug.Log(Vector3.Distance(new Vector2(carDistance, 0), new Vector2(busDistance, 0)));
+        cameraShake.StartShake();
+        if (Vector3.Distance(new Vector2(carDistance,0),new Vector2(busDistance, 0)) <= .21f)
         {
             passengerThrowLine(false, true);
             if (carTransform.GetComponent<SplineFollower>().motion.offset.x >= 0)
@@ -352,6 +350,10 @@ public class BusSc : MonoBehaviour
         if (carFollowerCopy.direction == Spline.Direction.Backward || negative)
         {
             zRotateCopy = Mathf.Abs(zRotate) * -1;
+        }
+        if(negative && carFollowerCopy.direction == Spline.Direction.Backward)
+        {
+            zRotateCopy = Mathf.Abs(zRotateCopy);
         }
         DOTween.To(x => currentZ = x, 0, zRotateCopy, jumpTime)
             .OnUpdate(() =>

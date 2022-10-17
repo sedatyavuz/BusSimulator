@@ -26,7 +26,7 @@ public class SwerveHorizontal : MonoBehaviour
     {
         DOTween.Init();
         _follower = GetComponent<SplineFollower>();
-        _screenWidthCalculate = Screen.width / 10;
+        _screenWidthCalculate = Screen.width / 18;
         busSc = GetComponent<BusSc>();
     }
 
@@ -61,7 +61,7 @@ public class SwerveHorizontal : MonoBehaviour
         float currentOffset = 0;
         nextXPosition = Mathf.Clamp(_follower.motion.offset.x + changeValue, 0, _lineChangeValueMax);
         _changeLine = false;
-        DOTween.To(x => currentOffset = x, _follower.motion.offset.x, nextXPosition, _lineChangeTime)
+        DOTween.To(x => currentOffset = x, _follower.motion.offset.x, nextXPosition, _lineChangeTime)//.SetEase(Ease.InQuad)
        .OnUpdate(() =>
        {
            if (busSc.acceleration == false)
