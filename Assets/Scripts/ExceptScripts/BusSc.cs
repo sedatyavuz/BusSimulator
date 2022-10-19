@@ -71,7 +71,7 @@ public class BusSc : MonoBehaviour
     #endregion
     private void OnEnable()
     {
-        //_currentPassengerAmount = 10;
+        //_currentPassengerAmount = 12;
         swerveHorizontal = GetComponent<SwerveHorizontal>();
         _skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
